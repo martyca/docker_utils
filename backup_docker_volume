@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+setup () { # check for required tools, get env vars from global vars
+  if ! command -v docker &> /dev/null
+  then
+    echo "docker could not be found but is required."
+    exit
+  fi
+  if ! command -v jq &> /dev/null
+  then
+    echo "jq could not be found but is required."
+    exit
+  fi
+  if [ -z "$Container" ]
+  then
+    echo "Container name not provided"
+    Help
+    exit 1
+  fi
+  if [ -z "$Mount" ]
+  then
+    echo "Mount location not provided"
+    Help
+    exit 1
+  fi
+}
+
+Help()
+{
+  # Display Help
+  echo "Script for backing up container mounts to tar gzip files."
+  echo
+  echo "Syntax: backup_docker_volume [-h|n|m]"
+  echo "options:"
+  echo "h     Print this Help."
+  echo "n     Container that uses the mount currently."
+  echo "m     Mount location of Volume in container (ex: /data)."
+  echo
+}
+
+while getopts "h:n:m:" option; do
+  case $option in
+    h) # display Help
+        Help
+        exit;;
+    n) # Container name
+        Container=$OPTARG
+        ;;
+    m) # Volume mount location in container
+        Mount=$OPTARG
+        ;;
+    \?) # Invalid option
+        echo "Error: Invalid option"
+        exit;;
+  esac
+done
+setup
+
+Date=$(date '+%Y%m%d%H%M')
+
+echo "docker run --rm --volumes-from ${Container} -v $(pwd):/backup ubuntu tar cvf /backup/${Date}.tar ${Mount}"
