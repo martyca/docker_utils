@@ -57,4 +57,4 @@ setup
 
 Date=$(date '+%Y%m%d%H%M')
 
-docker run --rm --volumes-from ${Container} -v $(pwd):/backup ubuntu tar cvf /backup/${Date}.tar ${Mount}
+docker run --rm --volumes-from ${Container} -v $(pwd):/backup ubuntu tar -zcvf /backup/${Date}.tar.gz ${Mount}
